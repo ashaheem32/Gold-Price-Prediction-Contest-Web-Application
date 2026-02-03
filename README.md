@@ -77,4 +77,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 Shaheem - [Profile](https://github.com/ashaheem32)
 
 ---
-*Built with ❤️ using .NET*
