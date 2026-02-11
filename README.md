@@ -2,6 +2,9 @@
 
 A robust ASP.NET Core Razor Pages application for managing a weekly gold price prediction contest. Users submit their gold price range predictions, and administrators select winners based on the closest match to the actual gold price using an intelligent distance-based algorithm.
 
+<img width="1456" height="831" alt="Screenshot 2026-02-12 at 1 11 54 AM" src="https://github.com/user-attachments/assets/fddd120e-5b52-47ee-aa77-1ca724f19a80" />
+
+
 ## Features
 
 ### Contest Entry
