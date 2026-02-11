@@ -5,192 +5,594 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
-    <title>Gold Contest</title>
+    <title>Gold Price Contest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background:
-                linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-                url('/Dollar.png') no-repeat center center fixed;
-            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        html[dir="rtl"] body {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+        }
+
+        /* Language toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            z-index: 200;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            backdrop-filter: blur(10px);
         }
 
-        .card {
-            background: rgba(255,255,255,0.95);
-            width: 380px;
-            padding: 24px;
-            border-radius: 14px;
-            box-shadow: 0 15px 40px rgba(0,0,0,.5);
-            z-index: 2;
+        html[dir="rtl"] .lang-toggle {
+            left: auto;
+            right: 20px;
         }
 
-        h1 {
-            text-align: center;
-            color: #1e88e5;
-        }
-
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 4px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            margin-top: 16px;
-            width: 100%;
-            padding: 12px;
-            background: #43a047;
-            color: white;
+        .lang-btn {
+            padding: 6px 14px;
+            background: transparent;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            color: #8a7d65;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* 🏆 SIDE WINNERS TABLE */
-        /* 🏆 TOP SCROLLING TICKER */
-        /* 🏆 TOP SLIDESHOW CAROUSEL */
-        .winner-carousel {
+        .lang-btn.active {
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            color: #1a1408;
+        }
+
+        .lang-btn:not(.active):hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+
+        /* Winner announcement banner */
+        .winner-banner {
+            background: linear-gradient(135deg, #1a1408, #2a1f0e, #1a1408);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 14px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 100;
+        }
+
+        .winner-banner-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .winner-banner-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #f5d769;
+            letter-spacing: 0.5px;
+        }
+
+        html[dir="rtl"] .winner-banner-text {
+            font-family: 'Noto Sans Arabic', serif;
+            letter-spacing: 0;
+        }
+
+        .winner-banner-name {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        @@keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Hero background */
+        .hero-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            height: 100%;
+            z-index: 0;
         }
 
-        .carousel-slide {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
+        .hero-bg::before {
+            content: '';
             position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(245, 215, 105, 0.03) 0%, transparent 50%);
+        }
+
+        .hero-bg img {
             width: 100%;
-            text-align: center;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.12;
         }
 
-        .carousel-slide.active {
-            opacity: 1;
-        }
-
+        /* Admin link */
         .admin-link {
-            position: absolute;
-            top: 70px; /* Moved down to avoid overlapping ticker */
-            left: 20px;
-            color: rgba(255, 255, 255, 0.8);
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            z-index: 200;
+            color: rgba(212, 175, 55, 0.5);
             text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 15px;
+            font-size: 12px;
+            padding: 6px 14px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
             border-radius: 20px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        html[dir="rtl"] .admin-link {
+            right: auto;
+            left: 20px;
         }
 
         .admin-link:hover {
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
+            color: #d4af37;
+            border-color: rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Main container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Branding */
+        .branding {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .gold-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #d4af37, #f5d769, #d4af37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+        }
+
+        .branding h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d4af37, #f5d769, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        html[dir="rtl"] .branding h1 {
+            font-family: 'Noto Sans Arabic', serif;
+            letter-spacing: 0;
+        }
+
+        .branding p {
+            color: #8a7d65;
+            font-size: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        html[dir="rtl"] .branding p {
+            letter-spacing: 0;
+        }
+
+        /* Form card */
+        .form-card {
+            background: linear-gradient(145deg, rgba(20, 18, 16, 0.95) 0%, rgba(26, 22, 16, 0.95) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 440px;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 24px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(212, 175, 55, 0.1);
+        }
+
+        .form-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        html[dir="rtl"] .form-card h2 {
+            font-family: 'Noto Sans Arabic', serif;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8a7d65;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        html[dir="rtl"] .field label {
+            letter-spacing: 0;
+            text-align: right;
+        }
+
+        .field input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            color: #e0d6c2;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        html[dir="rtl"] .field input {
+            text-align: right;
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .field input::placeholder {
+            color: #4a4030;
+        }
+
+        .rate-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1408;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        html[dir="rtl"] .submit-btn {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Footer links */
+        .footer-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: #8a7d65;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #d4af37;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 16px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            top: 24px;
+        }
+
+        .toast.success {
+            background: rgba(39, 174, 96, 0.15);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            color: #6fcf97;
+        }
+
+        .toast.error {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b7a;
+        }
+
+        /* Decorative particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #d4af37;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @@keyframes float {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            25% { opacity: 0.4; }
+            50% { opacity: 0.2; transform: translateY(-80px); }
+            75% { opacity: 0.1; }
+        }
+
+        @@media (max-width: 500px) {
+            .branding h1 { font-size: 30px; }
+            .form-card { padding: 28px 20px; }
+            .rate-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
 <body>
 
-
-
-<a href="/Admin/Login" class="admin-link">Admin Login</a>
-
-<!-- 🏆 WINNERS SIDE PANEL -->
-<!-- 🏆 TOP WINNERS SCROLL -->
-<!-- 🏆 TOP WINNERS SLIDESHOW -->
-@if (Model.Winners.Any())
+<!-- Winner banner -->
+@if (Model.CurrentWinner != null)
 {
-    <div class="winner-carousel">
-        @for (int i = 0; i < Model.Winners.Count; i++)
-        {
-            var w = Model.Winners[i];
-            <div class="carousel-slide @(i == 0 ? "active" : "")">
-                🏆 Congratulations: @w.AccountName - Account: @w.AccountNumber 🏆
-            </div>
-        }
+    <div class="winner-banner">
+        <div class="winner-banner-content">
+            <span>🏆</span>
+            <span class="winner-banner-text">
+                <span data-i18n="banner_congrats">Congratulations to</span>
+                <span class="winner-banner-name">@Model.CurrentWinner.AccountName</span>
+                <span data-i18n="banner_suffix">— This Week's Gold Contest Winner!</span>
+            </span>
+            <span>🏆</span>
+        </div>
     </div>
 }
 
-<!-- CUSTOMER ENTRY FORM -->
-<div class="card">
-    <h1>Gold Price Contest</h1>
-
-    <form method="post" onsubmit="return submitForm(event);">
-        @Html.AntiForgeryToken()
-
-        <label>Account Number</label>
-        <input name="AccountNumber" required />
-
-        <label>Account Name</label>
-        <input name="AccountName" required />
-
-        <label>Lower Gold Rate</label>
-        <input name="LowerRate" type="number" step="0.01" required />
-
-        <label>Upper Gold Rate</label>
-        <input name="UpperRate" type="number" step="0.01" required />
-
-        <button type="submit">Enter Contest</button>
-    </form>
+<!-- Language Toggle -->
+<div class="lang-toggle" @(Model.CurrentWinner != null ? "style=top:70px;" : "")>
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="ar" onclick="setLang('ar')">عربي</button>
 </div>
 
+<!-- Admin link -->
+<a href="/Admin/Login" class="admin-link" data-i18n="admin" @(Model.CurrentWinner != null ? "style=top:70px;" : "")>Admin</a>
+
+<!-- Background -->
+<div class="hero-bg">
+    <img src="/Dollar.png" alt="" />
+</div>
+
+<!-- Decorative particles -->
+<div class="particle" style="left: 15%; top: 30%; animation-delay: 0s;"></div>
+<div class="particle" style="left: 75%; top: 20%; animation-delay: 2s;"></div>
+<div class="particle" style="left: 45%; top: 70%; animation-delay: 4s;"></div>
+<div class="particle" style="left: 85%; top: 60%; animation-delay: 1s;"></div>
+<div class="particle" style="left: 25%; top: 80%; animation-delay: 3s;"></div>
+
+<!-- Main content -->
+<div class="main-container">
+    <div class="branding">
+        <div class="gold-icon">🪙</div>
+        <h1 data-i18n="main_title">Gold Contest</h1>
+        <p data-i18n="main_subtitle">Predict the Gold Price & Win</p>
+    </div>
+
+    <div class="form-card">
+        <h2 data-i18n="form_title">Enter Your Prediction</h2>
+
+        <form method="post" id="contestForm">
+            @Html.AntiForgeryToken()
+
+            <div class="field">
+                <label data-i18n="account_number">Account Number</label>
+                <input name="AccountNumber" data-i18n-placeholder="account_number_ph" placeholder="Enter your account number" required />
+            </div>
+
+            <div class="field">
+                <label data-i18n="account_name">Account Name</label>
+                <input name="AccountName" data-i18n-placeholder="account_name_ph" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="rate-row">
+                <div class="field">
+                    <label data-i18n="lower_rate">Lower Gold Rate</label>
+                    <input name="LowerRate" type="number" step="0.01" placeholder="0.00" required />
+                </div>
+                <div class="field">
+                    <label data-i18n="upper_rate">Upper Gold Rate</label>
+                    <input name="UpperRate" type="number" step="0.01" placeholder="0.00" required />
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" data-i18n="submit_btn">Submit Prediction</button>
+        </form>
+
+        <div class="footer-links">
+            <a href="/Winners" data-i18n="view_winners">View Winners →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-async function submitForm(e) {
-    e.preventDefault();
-    const form = e.target;
-    const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+const translations = {
+    en: {
+        main_title: "Gold Contest",
+        main_subtitle: "Predict the Gold Price & Win",
+        form_title: "Enter Your Prediction",
+        account_number: "Account Number",
+        account_number_ph: "Enter your account number",
+        account_name: "Account Name",
+        account_name_ph: "Enter your full name",
+        lower_rate: "Lower Gold Rate",
+        upper_rate: "Upper Gold Rate",
+        submit_btn: "Submit Prediction",
+        view_winners: "View Winners →",
+        admin: "Admin",
+        banner_congrats: "Congratulations to",
+        banner_suffix: "— This Week's Gold Contest Winner!",
+        toast_error: "Something went wrong. Please try again."
+    },
+    ar: {
+        main_title: "مسابقة الذهب",
+        main_subtitle: "توقع سعر الذهب واربح",
+        form_title: "أدخل توقعك",
+        account_number: "رقم الحساب",
+        account_number_ph: "أدخل رقم حسابك",
+        account_name: "اسم الحساب",
+        account_name_ph: "أدخل اسمك الكامل",
+        lower_rate: "أدنى سعر للذهب",
+        upper_rate: "أعلى سعر للذهب",
+        submit_btn: "إرسال التوقع",
+        view_winners: "← عرض الفائزين",
+        admin: "المسؤول",
+        banner_congrats: "تهانينا لـ",
+        banner_suffix: "— الفائز بمسابقة الذهب لهذا الأسبوع!",
+        toast_error: "حدث خطأ. يرجى المحاولة مرة أخرى."
+    }
+};
 
-    const res = await fetch('', {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'RequestVerificationToken': token }
-    });
+let currentLang = 'en';
 
-    const result = await res.json();
-    alert(result.messageEn);
-    if (result.success) form.reset();
+function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('goldcontest_lang', lang);
+    applyLang(lang);
 }
 
-// 🎠 CAROUSEL LOGIC
-document.addEventListener("DOMContentLoaded", function() {
-    const slides = document.querySelectorAll('.carousel-slide');
-    if (slides.length > 1) {
-        let currentSlide = 0;
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 3500); // Change every 3.5 seconds
+function applyLang(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    const html = document.documentElement;
+
+    html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    html.setAttribute('lang', lang);
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+    });
+}
+
+// Form submission
+const form = document.getElementById('contestForm');
+const toast = document.getElementById('toast');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    try {
+        const res = await fetch('', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { 'RequestVerificationToken': token }
+        });
+
+        const result = await res.json();
+        const msg = currentLang === 'ar' ? result.messageAr : result.messageEn;
+        showToast(msg, result.success ? 'success' : 'error');
+        if (result.success) form.reset();
+    } catch {
+        showToast(translations[currentLang].toast_error, 'error');
     }
+});
+
+function showToast(message, type) {
+    toast.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(() => { toast.classList.remove('show'); }, 4000);
+}
+
+// Load saved language
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('goldcontest_lang') || 'en';
+    applyLang(savedLang);
 });
 </script>
 

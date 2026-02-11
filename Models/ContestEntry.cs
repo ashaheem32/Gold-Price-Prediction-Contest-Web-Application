@@ -16,7 +16,9 @@ public class ContestEntry
     [Required]
     public decimal UpperRate { get; set; }
 
-     public bool IsWinner { get; set; }
+    public bool IsWinner { get; set; }
+
+    public DateTime? WonAt { get; set; }
 
     public DateTime CreatedAt { get; set; }
 }

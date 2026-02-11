@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 
 namespace GoldContest.Pages.Admin;
 
@@ -14,46 +13,37 @@ public class AdminIndexModel : PageModel
         _context = context;
     }
 
-    // =============================
     // Entries shown in admin grid
-    // =============================
     public List<ContestEntry> Entries { get; set; } = new();
 
-    // =============================
-    // Actual gold price (FORM BINDING)
-    // =============================
+    // Current winner (only one at a time)
+    public ContestEntry? CurrentWinner { get; set; }
+
+    // Actual gold price (form binding)
     [BindProperty]
     public decimal ActualGoldPrice { get; set; }
 
-    // =============================
     // INITIAL LOAD
-    // =============================
     public async Task<IActionResult> OnGetAsync()
     {
-        ProtectAdmin();
+        if (!IsAdmin()) return RedirectToPage("/Admin/Login");
 
-        Entries = await _context.ContestEntries
-            .Where(e => !e.IsWinner)
-            .OrderBy(e => e.Id)
-            .ToListAsync();
-
+        await ExpireOldWinners();
+        await LoadData();
         return Page();
     }
 
-    // =============================
-    // SEARCH WINNER (PREDICTION LOGIC)
-    // =============================
+    // SEARCH WINNER (prediction logic)
     public async Task<IActionResult> OnPostSearchWinnerAsync()
     {
-        ProtectAdmin();
+        if (!IsAdmin()) return RedirectToPage("/Admin/Login");
 
-        Console.WriteLine($"[ADMIN] SearchWinner called. ActualGoldPrice = {ActualGoldPrice}");
+        await ExpireOldWinners();
 
-        // Safety guard
         if (ActualGoldPrice <= 0)
         {
-            Console.WriteLine("[ADMIN] Invalid gold price entered");
             Entries = new();
+            await LoadCurrentWinner();
             return Page();
         }
 
@@ -63,12 +53,12 @@ public class AdminIndexModel : PageModel
 
         if (!allEntries.Any())
         {
-            Console.WriteLine("[ADMIN] No entries available");
             Entries = new();
+            await LoadCurrentWinner();
             return Page();
         }
 
-        // 🔮 Prediction distance algorithm
+        // Prediction distance algorithm
         var evaluated = allEntries.Select(e => new
         {
             Entry = e,
@@ -77,7 +67,7 @@ public class AdminIndexModel : PageModel
                     ? e.LowerRate - ActualGoldPrice
                     : ActualGoldPrice > e.UpperRate
                         ? ActualGoldPrice - e.UpperRate
-                        : 0   // Perfect prediction
+                        : 0
         }).ToList();
 
         var minDistance = evaluated.Min(x => x.Distance);
@@ -87,44 +77,96 @@ public class AdminIndexModel : PageModel
             .Select(x => x.Entry)
             .ToList();
 
-        Console.WriteLine($"[ADMIN] Matching entries found = {Entries.Count}");
-
+        await LoadCurrentWinner();
         return Page();
     }
 
-    // =============================
-    // SET WINNER (DB GUARANTEED)
-    // =============================
+    // SET WINNER -- removes previous winner first, only one at a time
     public async Task<IActionResult> OnPostSetWinnerAsync(int id)
     {
-        ProtectAdmin();
+        if (!IsAdmin()) return RedirectToPage("/Admin/Login");
 
-        Console.WriteLine($"[ADMIN] SetWinner called for ID = {id}");
+        // Remove any existing winners first
+        var existingWinners = await _context.ContestEntries
+            .Where(e => e.IsWinner)
+            .ToListAsync();
 
+        foreach (var w in existingWinners)
+        {
+            w.IsWinner = false;
+            w.WonAt = null;
+        }
+
+        // Set the new winner
         var entry = await _context.ContestEntries.FindAsync(id);
         if (entry != null)
         {
             entry.IsWinner = true;
-            await _context.SaveChangesAsync();
-            Console.WriteLine($"[ADMIN] Winner set: {entry.AccountName}");
+            entry.WonAt = DateTime.Now;
         }
 
+        await _context.SaveChangesAsync();
+        await LoadData();
+        return Page();
+    }
+
+    // DELETE / REMOVE WINNER
+    public async Task<IActionResult> OnPostRemoveWinnerAsync(int id)
+    {
+        if (!IsAdmin()) return RedirectToPage("/Admin/Login");
+
+        var entry = await _context.ContestEntries.FindAsync(id);
+        if (entry != null)
+        {
+            entry.IsWinner = false;
+            entry.WonAt = null;
+            await _context.SaveChangesAsync();
+        }
+
+        await LoadData();
+        return Page();
+    }
+
+    // Helper: check admin session
+    private bool IsAdmin()
+    {
+        return HttpContext.Session.GetString("IsAdmin") == "true";
+    }
+
+    // Helper: load all page data
+    private async Task LoadData()
+    {
         Entries = await _context.ContestEntries
             .Where(e => !e.IsWinner)
             .OrderBy(e => e.Id)
             .ToListAsync();
 
-        return Page();
+        await LoadCurrentWinner();
     }
 
-    // =============================
-    // ADMIN ACCESS PROTECTION
-    // =============================
-    private void ProtectAdmin()
+    // Helper: load current winner
+    private async Task LoadCurrentWinner()
     {
-        if (HttpContext.Session.GetString("IsAdmin") != "true")
+        CurrentWinner = await _context.ContestEntries
+            .Where(e => e.IsWinner)
+            .FirstOrDefaultAsync();
+    }
+
+    // Helper: auto-expire winners older than 7 days
+    private async Task ExpireOldWinners()
+    {
+        var expired = await _context.ContestEntries
+            .Where(e => e.IsWinner && e.WonAt != null && e.WonAt < DateTime.Now.AddDays(-7))
+            .ToListAsync();
+
+        if (expired.Any())
         {
-            Response.Redirect("/Admin/Login");
+            foreach (var w in expired)
+            {
+                w.IsWinner = false;
+                w.WonAt = null;
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }

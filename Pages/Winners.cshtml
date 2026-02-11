@@ -1,109 +1,460 @@
 @page
 @model WinnersModel
 @{
-    ViewData["Title"] = "Contest Winners";
+    ViewData["Title"] = "Contest Winner";
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
-    <title>Contest Winners</title>
+    <title>Contest Winner - Gold Contest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background:
-                linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-                url('/Dollar.png') no-repeat center center fixed;
-            background-size: cover;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
-            padding: 40px;
+            overflow-x: hidden;
         }
 
-        .card {
-            background: rgba(255,255,255,0.95);
-            max-width: 900px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 14px;
-            box-shadow: 0 15px 40px rgba(0,0,0,.5);
+        html[dir="rtl"] body {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
         }
 
-        h1 {
+        /* Language toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 16px;
+            right: 20px;
+            z-index: 200;
+            display: flex;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            backdrop-filter: blur(10px);
+        }
+
+        html[dir="rtl"] .lang-toggle {
+            right: auto;
+            left: 20px;
+        }
+
+        .lang-btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            color: #8a7d65;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            color: #1a1408;
+        }
+
+        .lang-btn:not(.active):hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+
+        /* Background */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .bg-layer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 30%, rgba(212, 175, 55, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 70%, rgba(245, 215, 105, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 50%);
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: relative;
+            z-index: 10;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .nav-bar a {
+            color: #8a7d65;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-bar a:hover {
+            color: #d4af37;
+            border-color: rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .nav-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        html[dir="rtl"] .nav-title {
+            font-family: 'Noto Sans Arabic', serif;
+        }
+
+        /* Main content */
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+            padding: 40px 20px;
+        }
+
+        /* Winner spotlight */
+        .winner-spotlight {
             text-align: center;
-            color: #1e88e5;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .trophy-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #d4af37, #f5d769, #d4af37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 28px;
+            box-shadow:
+                0 0 40px rgba(212, 175, 55, 0.3),
+                0 0 80px rgba(212, 175, 55, 0.1);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), 0 0 80px rgba(212, 175, 55, 0.1); }
+            50% { box-shadow: 0 0 60px rgba(212, 175, 55, 0.4), 0 0 120px rgba(212, 175, 55, 0.15); }
+        }
+
+        .spotlight-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #8a7d65;
+            margin-bottom: 8px;
+        }
+
+        html[dir="rtl"] .spotlight-title {
+            font-family: 'Noto Sans Arabic', serif;
+            letter-spacing: 0;
+        }
+
+        .winner-name-display {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d4af37, #f5d769, #fff, #f5d769, #d4af37);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldShift 4s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        @@keyframes goldShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .winner-account-display {
+            color: #8a7d65;
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        /* Winner details card */
+        .details-card {
+            background: linear-gradient(145deg, rgba(20, 18, 16, 0.9), rgba(26, 22, 16, 0.9));
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
             margin-bottom: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th, td {
-            padding: 14px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background: #1e88e5;
-            color: white;
-        }
-
-        tr.winner-row {
-            background: #e8f5e9;
-            font-weight: bold;
-        }
-
-        .empty {
+        .detail-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 14px;
+            padding: 20px;
             text-align: center;
-            padding: 30px;
-            color: #555;
-            font-size: 18px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8a7d65;
+            margin-bottom: 8px;
+        }
+
+        html[dir="rtl"] .detail-label {
+            letter-spacing: 0;
+        }
+
+        .detail-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #f5d769;
+        }
+
+        .won-date {
+            text-align: center;
+            color: #5a5040;
+            font-size: 13px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 24px;
+        }
+
+        .empty-state h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #d4af37;
+            margin-bottom: 12px;
+        }
+
+        html[dir="rtl"] .empty-state h2 {
+            font-family: 'Noto Sans Arabic', serif;
+        }
+
+        .empty-state p {
+            color: #5a5040;
+            font-size: 15px;
+            max-width: 360px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            border-radius: 12px;
+            color: #1a1408;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            top: -10px;
+            z-index: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            opacity: 0;
+            animation: confettiFall 6s ease-in-out infinite;
+        }
+
+        @@keyframes confettiFall {
+            0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+            10% { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+        }
+
+        @@media (max-width: 500px) {
+            .winner-name-display { font-size: 32px; }
+            .details-card { padding: 24px 16px; }
+            .detail-value { font-size: 22px; }
         }
     </style>
 </head>
 
 <body>
 
-<div class="card">
-    <h1>🏆 Contest Winners</h1>
+<div class="bg-layer"></div>
 
-    @if (Model.Winners == null || Model.Winners.Count == 0)
+<!-- Language Toggle -->
+<div class="lang-toggle">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="ar" onclick="setLang('ar')">عربي</button>
+</div>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+    <span class="nav-title" data-i18n="nav_title">Gold Contest</span>
+    <a href="/" data-i18n="nav_back">← Enter Contest</a>
+</nav>
+
+<div class="content">
+    @if (Model.CurrentWinner != null)
     {
-        <div class="empty">
-            Winners will be announced soon. Please check back later.
+        <!-- Confetti particles -->
+        <div class="confetti" style="left:10%; background:#d4af37; animation-delay:0s;"></div>
+        <div class="confetti" style="left:25%; background:#f5d769; animation-delay:0.8s;"></div>
+        <div class="confetti" style="left:40%; background:#d4af37; animation-delay:1.6s;"></div>
+        <div class="confetti" style="left:55%; background:#f5d769; animation-delay:0.4s;"></div>
+        <div class="confetti" style="left:70%; background:#d4af37; animation-delay:1.2s;"></div>
+        <div class="confetti" style="left:85%; background:#f5d769; animation-delay:2s;"></div>
+        <div class="confetti" style="left:95%; background:#d4af37; animation-delay:0.6s;"></div>
+
+        <div class="winner-spotlight">
+            <div class="trophy-icon">🏆</div>
+            <div class="spotlight-title" data-i18n="this_week_winner">This Week's Winner</div>
+            <div class="winner-name-display">@Model.CurrentWinner.AccountName</div>
+            <div class="winner-account-display">
+                <span data-i18n="account_label">Account:</span> @Model.CurrentWinner.AccountNumber
+            </div>
+
+            <div class="details-card">
+                <div class="details-grid">
+                    <div class="detail-box">
+                        <div class="detail-label" data-i18n="lower_rate">Lower Rate</div>
+                        <div class="detail-value">@Model.CurrentWinner.LowerRate</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label" data-i18n="upper_rate">Upper Rate</div>
+                        <div class="detail-value">@Model.CurrentWinner.UpperRate</div>
+                    </div>
+                </div>
+
+                @if (Model.CurrentWinner.WonAt.HasValue)
+                {
+                    <div class="won-date">
+                        <span data-i18n="won_on">Won on</span> @Model.CurrentWinner.WonAt.Value.ToString("MMMM dd, yyyy")
+                    </div>
+                }
+            </div>
         </div>
     }
     else
     {
-        <table>
-            <thead>
-                <tr>
-                    <th>Account Number</th>
-                    <th>Account Name</th>
-                    <th>Lower Rate</th>
-                    <th>Upper Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var w in Model.Winners)
-            {
-                <tr class="winner-row">
-                    <td>@w.AccountNumber</td>
-                    <td>@w.AccountName</td>
-                    <td>@w.LowerRate</td>
-                    <td>@w.UpperRate</td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        <div class="empty-state">
+            <div class="empty-icon">🪙</div>
+            <h2 data-i18n="coming_soon">Winner Coming Soon</h2>
+            <p data-i18n="coming_soon_text">The winner for this week's gold price prediction contest will be announced shortly. Stay tuned!</p>
+            <a href="/" class="cta-btn" data-i18n="enter_contest">Enter the Contest →</a>
+        </div>
     }
 </div>
+
+<script>
+const translations = {
+    en: {
+        nav_title: "Gold Contest",
+        nav_back: "← Enter Contest",
+        this_week_winner: "This Week's Winner",
+        account_label: "Account:",
+        lower_rate: "Lower Rate",
+        upper_rate: "Upper Rate",
+        won_on: "Won on",
+        coming_soon: "Winner Coming Soon",
+        coming_soon_text: "The winner for this week's gold price prediction contest will be announced shortly. Stay tuned!",
+        enter_contest: "Enter the Contest →"
+    },
+    ar: {
+        nav_title: "مسابقة الذهب",
+        nav_back: "الدخول إلى المسابقة →",
+        this_week_winner: "الفائز لهذا الأسبوع",
+        account_label: "الحساب:",
+        lower_rate: "الحد الأدنى",
+        upper_rate: "الحد الأعلى",
+        won_on: "فاز في",
+        coming_soon: "الفائز قريبًا",
+        coming_soon_text: "سيتم الإعلان عن الفائز بمسابقة توقع سعر الذهب لهذا الأسبوع قريبًا. ترقبوا!",
+        enter_contest: "← ادخل المسابقة"
+    }
+};
+
+function setLang(lang) {
+    localStorage.setItem('goldcontest_lang', lang);
+    applyLang(lang);
+}
+
+function applyLang(lang) {
+    const t = translations[lang];
+    const html = document.documentElement;
+
+    html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    html.setAttribute('lang', lang);
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('goldcontest_lang') || 'en';
+    applyLang(savedLang);
+});
+</script>
 
 </body>
 </html>

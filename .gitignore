@@ -6,3 +6,6 @@ obj/
 *.suo
 .DS_Store
 run_log.txt
+
+# Secrets — real passwords live here, never commit
+appsettings.Development.json

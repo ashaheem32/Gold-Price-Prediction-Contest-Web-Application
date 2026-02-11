@@ -5,152 +5,522 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - Gold Contest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            padding: 30px;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e0d6c2;
+            min-height: 100vh;
         }
 
-        h1 {
-            color: #1e88e5;
-        }
-
-        .top-bar {
+        /* Top navigation bar */
+        .top-nav {
+            background: linear-gradient(135deg, #1a1408 0%, #2a1f0e 100%);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .gold-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
+        .top-nav h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            background: linear-gradient(135deg, #d4af37, #f5d769, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
-        input {
-            padding: 8px;
-            width: 200px;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        button {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            background: #1e88e5;
-            color: white;
-            cursor: pointer;
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37, #f5d769);
+            color: #1a1408;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #f5d769, #d4af37);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff6b7a;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #d4af37;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        /* Main layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+            padding: 24px 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(145deg, #141210 0%, #1a1610 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #d4af37;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title span {
+            font-size: 20px;
+        }
+
+        /* Search form */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a7d65;
+        }
+
+        .form-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #e0d6c2;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            width: 220px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
         }
 
         th {
-            background: #1e88e5;
-            color: white;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8a7d65;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 14px;
+            color: #c5bba3;
+        }
+
+        tr:hover td {
+            background: rgba(212, 175, 55, 0.03);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #5a5040;
+        }
+
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        /* Winner sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .winner-card {
+            background: linear-gradient(145deg, #1f1a0e 0%, #2a2010 100%);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .winner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(245, 215, 105, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #f5d769;
+            margin-bottom: 16px;
+        }
+
+        .winner-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .winner-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #f5d769;
+            margin-bottom: 4px;
+        }
+
+        .winner-account {
+            font-size: 13px;
+            color: #8a7d65;
+            margin-bottom: 16px;
+        }
+
+        .winner-rates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .rate-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .rate-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a7d65;
+            margin-bottom: 4px;
+        }
+
+        .rate-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+        .winner-expiry {
+            font-size: 12px;
+            color: #5a5040;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .no-winner {
+            text-align: center;
+            padding: 32px 16px;
+            color: #5a5040;
+            position: relative;
+            z-index: 1;
+        }
+
+        .no-winner .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .no-winner p {
+            font-size: 14px;
+        }
+
+        /* Stats card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #d4af37;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a7d65;
+            margin-top: 4px;
+        }
+
+        @@media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-group input {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="top-bar">
-    <h1>Admin Dashboard</h1>
-
-    <form method="get" action="/Admin/Logout">
-        <button style="background:#e53935;">Logout</button>
-    </form>
-</div>
-
-<!-- ================= SEARCH WINNER ================= -->
-<form method="post"
-      asp-page="/Admin/Index"
-      asp-page-handler="SearchWinner">
-    @Html.AntiForgeryToken()
-
-    <div class="gold-box">
-        <strong>Actual Gold Price:</strong>
-
-        <!-- 🔥 asp-for IS MANDATORY -->
-        <input type="number"
-               step="0.01"
-               asp-for="ActualGoldPrice"
-               required />
-
-        <button type="submit">Search Winner</button>
-        <a href="/Admin/Index" style="margin-left:8px; padding: 10px 14px; background: #757575; color: white; text-decoration: none; border-radius: 6px;">Reset</a>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <h1>Gold Contest Admin</h1>
+    <div class="nav-actions">
+        <a href="/" class="btn btn-outline btn-sm">View Contest</a>
+        <a href="/Winners" class="btn btn-outline btn-sm">Winners Page</a>
+        <form method="get" action="/Admin/Logout" style="display:inline;">
+            <button class="btn btn-danger btn-sm" type="submit">Logout</button>
+        </form>
     </div>
-</form>
+</nav>
 
-<!-- ================= ENTRIES TABLE ================= -->
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Account Number</th>
-            <th>Account Name</th>
-            <th>Lower Rate</th>
-            <th>Upper Rate</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+<div class="main-layout">
+    <!-- Left: Main content -->
+    <div>
+        <!-- Search Winner -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-title"><span>🔍</span> Find Winner by Gold Price</div>
+            <form method="post" asp-page="/Admin/Index" asp-page-handler="SearchWinner">
+                @Html.AntiForgeryToken()
+                <div class="search-bar">
+                    <div class="form-group">
+                        <label>Actual Gold Price</label>
+                        <input type="number" step="0.01" asp-for="ActualGoldPrice" placeholder="Enter gold price..." required />
+                    </div>
+                    <button type="submit" class="btn btn-gold">Search Winner</button>
+                    <a href="/Admin/Index" class="btn btn-outline btn-sm">Reset</a>
+                </div>
+            </form>
+        </div>
 
-    <tbody>
-    @if (!Model.Entries.Any())
-    {
-        <tr>
-            <td colspan="6" style="text-align:center;">
-                No matching records found
-            </td>
-        </tr>
-    }
-    else
-    {
-        foreach (var entry in Model.Entries)
-        {
-            <tr>
-                <td>@entry.Id</td>
-                <td>@entry.AccountNumber</td>
-                <td>@entry.AccountName</td>
-                <td>@entry.LowerRate</td>
-                <td>@entry.UpperRate</td>
-                <td>
-                    <!-- 🔥 THIS FORM IS THE CRITICAL FIX -->
-                    <form method="post"
-                          asp-page="/Admin/Index"
-                          asp-page-handler="SetWinner">
+        <!-- Entries Table -->
+        <div class="card">
+            <div class="card-title"><span>📋</span> Contest Entries</div>
+            <div class="table-wrapper">
+                @if (!Model.Entries.Any())
+                {
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <p>No matching entries found</p>
+                    </div>
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Account Number</th>
+                                <th>Account Name</th>
+                                <th>Lower Rate</th>
+                                <th>Upper Rate</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var entry in Model.Entries)
+                            {
+                                <tr>
+                                    <td>#@entry.Id</td>
+                                    <td>@entry.AccountNumber</td>
+                                    <td style="color: #e0d6c2; font-weight: 500;">@entry.AccountName</td>
+                                    <td>@entry.LowerRate</td>
+                                    <td>@entry.UpperRate</td>
+                                    <td>
+                                        <form method="post" asp-page="/Admin/Index" asp-page-handler="SetWinner">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@entry.Id" />
+                                            <button type="submit" class="btn btn-gold btn-sm">Set Winner</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Sidebar -->
+    <div class="sidebar">
+        <!-- Current Winner Card -->
+        <div class="winner-card">
+            <div class="card-title"><span>🏆</span> Current Winner</div>
+
+            @if (Model.CurrentWinner != null)
+            {
+                <div class="winner-info">
+                    <div class="winner-badge">👑 Active Winner</div>
+                    <div class="winner-name">@Model.CurrentWinner.AccountName</div>
+                    <div class="winner-account">Account: @Model.CurrentWinner.AccountNumber</div>
+
+                    <div class="winner-rates">
+                        <div class="rate-box">
+                            <div class="rate-label">Lower</div>
+                            <div class="rate-value">@Model.CurrentWinner.LowerRate</div>
+                        </div>
+                        <div class="rate-box">
+                            <div class="rate-label">Upper</div>
+                            <div class="rate-value">@Model.CurrentWinner.UpperRate</div>
+                        </div>
+                    </div>
+
+                    @if (Model.CurrentWinner.WonAt.HasValue)
+                    {
+                        var daysLeft = 7 - (DateTime.Now - Model.CurrentWinner.WonAt.Value).Days;
+                        <div class="winner-expiry">
+                            ⏳ Expires in @daysLeft day(s)
+                        </div>
+                    }
+
+                    <form method="post" asp-page="/Admin/Index" asp-page-handler="RemoveWinner">
                         @Html.AntiForgeryToken()
-
-                        <!-- 🔥 MUST BE name="id" -->
-                        <input type="hidden" name="id" value="@entry.Id" />
-
-                        <button type="submit">
-                            Set as Winner
+                        <input type="hidden" name="id" value="@Model.CurrentWinner.Id" />
+                        <button type="submit" class="btn btn-danger" style="width:100%;"
+                                onclick="return confirm('Remove this winner?');">
+                            Remove Winner
                         </button>
                     </form>
-                </td>
-            </tr>
-        }
-    }
-    </tbody>
-</table>
+                </div>
+            }
+            else
+            {
+                <div class="no-winner">
+                    <div class="icon">🏅</div>
+                    <p>No winner selected yet</p>
+                    <p style="font-size: 12px; margin-top: 6px;">Search by gold price to find the closest prediction</p>
+                </div>
+            }
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-title"><span>📊</span> Quick Stats</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">@Model.Entries.Count</div>
+                    <div class="stat-label">Entries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">@(Model.CurrentWinner != null ? "1" : "0")</div>
+                    <div class="stat-label">Winner</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
